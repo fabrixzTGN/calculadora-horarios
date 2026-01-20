@@ -2,107 +2,312 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Calculadora Horarios Scrapper</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
   <style>
-    body { font-family: Arial, sans-serif; background:#f5f5f5; }
-    .app { background:#fff; max-width:1000px; margin:40px auto; padding:20px; border-radius:10px; }
-    table { width:100%; border-collapse: collapse; }
-    th, td { border:1px solid #ddd; padding:8px; text-align:left; }
-    th { background:#eee; }
-    input { width:100%; padding:6px; }
+    :root{
+      --bg:#0b1220;
+      --card:#0f1a2e;
+      --card2:#0c1526;
+      --text:#e9eefc;
+      --muted:#aab6d6;
+      --line:rgba(255,255,255,.10);
+      --accent:#6ea8ff;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 30% -10%, rgba(110,168,255,.25), transparent 55%),
+                  radial-gradient(1200px 600px at 80% 10%, rgba(120,255,204,.12), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+    }
+
+    .wrap{
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .header{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .title{
+      margin:0;
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing:.2px;
+    }
+
+    .subtitle{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size: 13px;
+      max-width: 60ch;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+    }
+
+    .controls{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .field label{
+      display:block;
+      font-size: 12px;
+      color:var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="time"], input[type="number"]{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      outline: none;
+      font-size: 16px; /* evita zoom en iOS */
+    }
+
+    input[type="number"]{ text-align: right; }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .pill b{ color: var(--text); font-weight: 700; }
+
+    .tableCard{
+      margin-top: 12px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .tableHead{
+      padding: 12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap: wrap;
+    }
+
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tableWrap{
+      width:100%;
+      overflow-x:auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      min-width: 760px; /* fuerza scroll en pantallas chicas */
+    }
+
+    th, td{
+      padding: 12px 14px;
+      border-bottom:1px solid var(--line);
+      text-align:left;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    th{
+      position: sticky;
+      top: 0;
+      background: rgba(15,26,46,.95);
+      backdrop-filter: blur(10px);
+      z-index: 1;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing:.2px;
+    }
+
+    td b{
+      font-size: 15px;
+    }
+
+    .colRight{ text-align:right; }
+
+    .timeBox{
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      background: rgba(110,168,255,.12);
+      border:1px solid rgba(110,168,255,.30);
+      padding: 8px 10px;
+      border-radius: 12px;
+      display:inline-block;
+      min-width: 82px;
+      text-align:center;
+      font-weight: 800;
+    }
+
+    .footer{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 520px){
+      .title{ font-size: 18px; }
+      .controls{ grid-template-columns: 1fr; }
+      .pill{ width:100%; justify-content: space-between; }
+    }
   </style>
 </head>
 
 <body>
-<div id="root"></div>
+  <div id="root"></div>
 
-<script type="text/babel">
-function toMinutes(time) {
-  const [h,m] = time.split(":").map(Number);
-  return h*60 + m;
-}
+  <script type="text/babel">
+    function toMinutes(time) {
+      const [h,m] = time.split(":").map(Number);
+      return h*60 + m;
+    }
 
-function toTime(mins) {
-  mins = ((mins % 1440) + 1440) % 1440;
-  const h = Math.floor(mins/60);
-  const m = Math.round(mins%60);
-  return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
-}
+    function toTime(mins) {
+      mins = ((mins % 1440) + 1440) % 1440;
+      const h = Math.floor(mins/60);
+      const m = Math.round(mins%60);
+      return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
+    }
 
-function App() {
-  const [launch, setLaunch] = React.useState("07:00");
-  const [rows, setRows] = React.useState([
-    {loc:"GLUCOVIL", dist:2, vel:14.5},
-    {loc:"VALLE CONLARA", dist:4, vel:14.5},
-    {loc:"VLV 110", dist:6, vel:14.5},
-    {loc:"VLV JUAN JORBA", dist:32, vel:14.5},
-    {loc:"JUSTO DARACT", dist:40, vel:14.5},
-    {loc:"PC CHAJAN", dist:45, vel:14.5},
-    {loc:"VLV CHAJAN", dist:66, vel:14.5},
-    {loc:"TSR", dist:97, vel:14.5},
-  ]);
+    function App() {
+      const [launch, setLaunch] = React.useState("07:00");
+      const [rows, setRows] = React.useState([
+        {loc:"GLUCOVIL", dist:2, vel:14.5},
+        {loc:"VALLE CONLARA", dist:4, vel:14.5},
+        {loc:"VLV 110", dist:6, vel:14.5},
+        {loc:"VLV JUAN JORBA", dist:32, vel:14.5},
+        {loc:"JUSTO DARACT", dist:40, vel:14.5},
+        {loc:"PC CHAJAN", dist:45, vel:14.5},
+        {loc:"VLV CHAJAN", dist:66, vel:14.5},
+        {loc:"TSR", dist:97, vel:14.5},
+      ]);
 
-  const updateVel = (i, v) => {
-    const r=[...rows];
-    r[i].vel = v;
-    setRows(r);
-  };
+      // ✅ NUEVO: al cambiar la velocidad en una fila,
+      // se copia automáticamente en todas las filas de abajo
+      const updateVel = (i, v) => {
+        const next = rows.map((row, idx) => {
+          if (idx >= i) return { ...row, vel: v };
+          return row;
+        });
+        setRows(next);
+      };
 
-  return (
-    <div className="app">
-      <h2>Calculadora de horario de paso TGN CHAJAN TR31 AFD</h2>
+      const last = rows[rows.length - 1];
+      const etaFinal = last ? toTime(toMinutes(launch) + (last.dist/last.vel)*60) : "--:--";
 
-      <label>
-        <b>Hora de lanzamiento:</b>
-        <input type="time" value={launch} onChange={e=>setLaunch(e.target.value)} />
-      </label>
+      return (
+        <div className="wrap">
+          <div className="header">
+            <div>
+              <h1 className="title">Calculadora de horario de paso – TGN CHAJÁN TR31 AFD</h1>
+              <p className="subtitle">
+                Cambiá la <b>hora de lanzamiento</b> y/o la <b>velocidad</b>. Locaciones y distancias quedan fijas.
+                Si editás una velocidad, se replica en todas las filas debajo.
+              </p>
+            </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Locación</th>
-            <th>Distancia del lanzamiento (km)</th>
-            <th>Velocidad (km/h)</th>
-            <th>Hora estimada</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r,i)=>{
-            const mins = toMinutes(launch)+(r.dist/r.vel)*60;
-            return (
-              <tr key={i}>
-                {/* LOCACIÓN FIJA */}
-                <td><b>{r.loc}</b></td>
+            <span className="pill">ETA final: <b>{etaFinal}</b></span>
+          </div>
 
-                {/* DISTANCIA FIJA */}
-                <td><b>{r.dist}</b></td>
+          <div className="card">
+            <div className="controls">
+              <div className="field">
+                <label>Hora de lanzamiento</label>
+                <input type="time" value={launch} onChange={e=>setLaunch(e.target.value)} />
+              </div>
+              <span className="pill">Fórmula: <b>Lanzamiento + (Dist/Vel)</b></span>
+            </div>
+          </div>
 
-                {/* VELOCIDAD EDITABLE */}
-                <td>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={r.vel}
-                    onChange={e=>updateVel(i, e.target.value)}
-                  />
-                </td>
+          <div className="card tableCard">
+            <div className="tableHead">
+              <b>Tabla de paso</b>
+              <span className="hint">En celular: desplazá horizontalmente ↔️</span>
+            </div>
 
-                <td><b>{toTime(mins)}</b></td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            <div className="tableWrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Locación</th>
+                    <th className="colRight">Distancia (km)</th>
+                    <th className="colRight">Velocidad (km/h)</th>
+                    <th className="colRight">Hora estimada</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r,i)=>{
+                    const mins = toMinutes(launch)+(r.dist/r.vel)*60;
+                    return (
+                      <tr key={i}>
+                        <td><b>{r.loc}</b></td>
+                        <td className="colRight"><b>{r.dist}</b></td>
+                        <td className="colRight">
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={r.vel}
+                            onChange={e=>updateVel(i, e.target.value)}
+                            aria-label={"Velocidad desde " + r.loc}
+                          />
+                        </td>
+                        <td className="colRight"><span className="timeBox">{toTime(mins)}</span></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      <p><i>Fórmula: Hora = Lanzamiento + (Distancia / Velocidad)</i></p>
-    </div>
-  );
-}
+          <div className="footer">
+            Tip: si querés que todas tengan siempre la misma velocidad (un solo input), también lo puedo simplificar.
+          </div>
+        </div>
+      );
+    }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-</script>
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  </script>
 </body>
 </html>
