@@ -241,12 +241,12 @@
             <div>
               <h1 className="title">Calculadora de horario de paso – TGN CHAJÁN TR31 AFD</h1>
               <p className="subtitle">
-                Cambiá la <b>hora de lanzamiento</b> y/o la <b>velocidad</b>. Locaciones y distancias quedan fijas.
+                Cambiá la <b>hora de lanzamiento</b> y/o la <b>velocidad</b>.
                 Si editás una velocidad, se replica en todas las filas debajo.
               </p>
             </div>
 
-            <span className="pill">ETA final: <b>{etaFinal}</b></span>
+            <span className="pill">HORARIO LLEGADA TSR: <b>{etaFinal}</b></span>
           </div>
 
           <div className="card">
@@ -270,7 +270,7 @@
                 <thead>
                   <tr>
                     <th>Locación</th>
-                    <th className="colRight">Distancia (km)</th>
+                    <th className="colRight">Distancia del lanzamiento (km)</th>
                     <th className="colRight">Velocidad (km/h)</th>
                     <th className="colRight">Hora estimada</th>
                   </tr>
@@ -301,7 +301,7 @@
           </div>
 
           <div className="footer">
-            Tip: si querés que todas tengan siempre la misma velocidad (un solo input), también lo puedo simplificar.
+            tip: se pueden modificar las velocidades segun lo que indique despacho
           </div>
         </div>
       );
@@ -311,3 +311,4 @@
   </script>
 </body>
 </html>
+
